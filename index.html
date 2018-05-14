@@ -317,6 +317,28 @@
       }
     }
 
+    function openMessage(element, message) {
+      if (element.innerHTML == undefined | element.innerHTML == null | element.innerHTML == '' ) {
+        element.innerHTML = message;
+      } else {
+        element.innerHTML = '';
+      }
+    }
+
+    function openAbout() {
+      document.getElementById('credits').innerHTML = '';
+      var about = 'iCalendar (.ics) files are a <a href="https://en.wikipedia.org/wiki/ICalendar">collection of events with metadata</a>. Sometimes, you end up with a lot of them, but some calendars (e.g. Google Calendar) only support import from single .ics files. This tool combines the events and adds metadata to the result for the .ics files you upload, so you don\'t have to import each single one by hand.';
+      var aboutEl = document.getElementById('about');
+      openMessage(aboutEl, about);
+    }
+
+    function openCredits() {
+      document.getElementById('about').innerHTML = '';
+      var credits = 'Find the source for this site <a href="https://github.com/mionisation/icsMerge">on Github</a><br> <a href="https://www.linkedin.com/in/michael-ion">More about me</a> <br>Animation made using (and slightly altering) <a href="https://fontawesome.com">fontawesome icons</a>   <br> Fonts from Google Fonts: <a href="https://fonts.google.com/specimen/Oswald">Oswald</a> and <a href="https://fonts.google.com/specimen/Bangers">Bangers</a>';
+      var creditEl = document.getElementById('credits');
+      openMessage(creditEl, credits);
+    }
+
     </script>
     <h1> Merge .ICS Files!</h1>
     <p>Got some .ics files to merge into one? You're at the right place! </p>
@@ -335,12 +357,10 @@
       <button class="button" onclick="download_merge(data)">Click for manual download!</button>
       <p id="message"></p>
       <textarea id="output" rows="15" >(If the donwload doesn't work, you can also copy the result here and paste to a new .ics file!)</textarea>
-      <p><a underline, mousepointer onclick="openCredits()">( What's this? )</a></p>
+      <p><a underline, mousepointer onclick="openAbout()">( What's this? )</a></p>
       <p id="about"></p>
-      <p>iCalendar (.ics) files are a <a href="https://en.wikipedia.org/wiki/ICalendar">collection of events with metadata</a>. Sometimes, you end up with a lot of them, but some calendars (e.g. Google Calendar) only support import from single .ics files. This tool combines the events and adds metadata to the result for the .ics files you upload, so you don't have to import each single one by hand.</p>
       <p><a underline, mousepointer onclick="openCredits()">( Credits )</a></p>
       <p id="credits"></p>
-      <p>Made by <a href="http://michaelion.io">me</a> <br> Find the source for this site <a href="https://github.com/mionisation/icsMerge">on Github</a> <br>Animation made using (and slightly altering) fontawesome files, from <a href="http://michaelion.io">https://fontawesome.com</a>   <br> Fonts from Google Fonts: <a href="http://michaelion.io">Oswald</a> and <a href="http://michaelion.io">Bangers</a></p>
     </div>
 
   </body>
