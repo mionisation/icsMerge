@@ -1,0 +1,347 @@
+<!doctype html>
+<html>
+  <head>
+    <title>iCalendar Merger - Combine ics files</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="This tool allows to merge iCalendar (.ics) files into one file. Some calendars only allow the import of single ics files, which is frustrating if you have a lot of different ics files.">
+
+    <link href="https://fonts.googleapis.com/css?family=Bangers" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Oswald" rel="stylesheet">
+    <style>
+        html                    { overflow-y:scroll; min-height: 100% }
+        body {
+          text-align: center;
+          padding-top:10px;
+          min-height: 100%;
+          font-family: 'Oswald', sans-serif;
+          color: white;
+          font-size: 1.5rem;
+          background: linear-gradient(to bottom right, #dd6a83, #c63b59);
+        }
+        #drop_zone {
+          border: 2px dashed white;
+          height: 250px;
+          width: inherit;
+          margin: auto;
+          padding: 5px;
+          background: linear-gradient(to bottom left, #ff924c, #ff7b25);
+          border-radius: 8px;
+          outline: 2px dashed white;
+          outline-offset: -10px;
+
+        }
+        h1 {
+          text-align: center;
+          color: white;
+          font-size: 4rem;
+          letter-spacing: 5px;
+          font-family: 'Bangers', cursive, Arial;
+
+        }
+        textarea {
+          display: block;
+          color: black;
+          width: 100%;
+          margin: 50px auto 20px;
+          padding: 10px;
+          box-sizing: border-box;
+          background: linear-gradient(to bottom left, #ffedc4, #ffd6a0);
+          font-family: 'Consolas', 'Monaco','Lucida Console','Liberation Mono','DejaVu Sans Mono','Bitstream Vera Sans Mono','Courier New';
+        }
+
+        @media (max-width:350px) {
+          #dragdropAnimation {
+            display: none;
+          }
+        }
+
+        #dragdropAnimation {
+          position: relative;
+          width: 100%;
+          height: 70%;
+        }
+
+        #dragdropAnimation img {
+          position:absolute;
+        }
+
+        @keyframes fileAnim {
+          25%  {left:15%; top:5%; opacity: .9}
+          50%  {left: 75%; top:23%; opacity: .9}
+          100% {left: 75%; top:23%; opacity: 0;}
+        }
+
+        #file {
+          top: 5%;
+          left: 15%;
+          z-index: 1;
+          width: 12%;
+          height: inherit;
+          display: block;
+          opacity: 0;
+          animation-name: fileAnim;
+          animation-iteration-count: infinite;
+          animation-duration: 4s;
+
+        }
+
+        #folder {
+          top: 5%;
+          right: 5%;
+          z-index: 3;
+          width: 30%;
+          height: inherit;
+          display: block;
+          opacity: .6;
+        }
+
+        @keyframes mouseAnim {
+          25%  {left:20%; top:3%; opacity: .9}
+          50%  {left: 80%; top:21%; opacity: .9}
+          100% {left: 80%; top:21%; opacity: 0;}
+        }
+
+        #mouse {
+          top: 20%;
+          left: 5%;
+          z-index: 2;
+          width: 3%;
+          height: inherit;
+          display: block;
+          animation-name: mouseAnim;
+          animation-iteration-count: infinite;
+          animation-duration: 4s;
+          opacity: 0;
+
+        }
+
+        a {
+            color: white;
+            text-decoration: underline;
+        }
+
+        .button {
+          display: inline-block;
+          margin-top: 10px;
+          padding: 10px 20px;
+          font-size: 20px;
+          cursor: pointer;
+          text-align: center;
+          text-decoration: none;
+          outline: none;
+          color: #fff;
+          background-color: #ff7b25;
+          border: none;
+          border-radius: 15px;
+          box-shadow: -1px 5px #ddd;
+          font-family: 'Oswald', sans-serif;
+        }
+
+        .button:hover {background-color: #a34e16}
+
+        .button:active {
+          background-color: #a34e16;
+          box-shadow: -1px 3px #999;
+          transform: translateY(4px);
+        }
+
+
+        #content {
+          max-width: 600px;
+          min-width: 250px;
+          margin: 0 auto;
+          background: none;
+          color: #fff;
+        }
+
+        #fileChooserLabel {
+          text-decoration: underline;
+          cursor: pointer;
+        }
+
+        #fileChooser {
+          display: none;
+        }
+
+    </style>
+
+    <script src="https://cdn.rawgit.com/konvajs/konva/1.7.6/konva.min.js"></script>
+
+  </head>
+  <body>
+    <script>
+
+    var data = undefined;
+    function download_merge(data) {
+          var fileContent = '';
+          if( data == null | data == undefined ) {
+            writeMessage("ERROR: Please select or drag your *.ics files first!");
+            return;
+          }
+          data.forEach(function(row) {
+                  fileContent += row;
+                  fileContent += "\n";
+          });
+
+          var element = document.createElement('a');
+          element.setAttribute('href', 'data:text/ics;charset=utf-8,' + encodeURIComponent(fileContent));
+          element.setAttribute('download', 'calendar.ics');
+          element.style.display = 'none';
+          document.body.appendChild(element);
+          element.click();
+          document.body.removeChild(element);
+      }
+
+    function writeMessage(text) {
+      var message = document.getElementById('message');
+      message.innerHTML=text;
+      setTimeout(function() {message.innerHTML=""}, 3500);
+    }
+
+    function processFile(i, size, file, callback) {
+      var reader = new FileReader();
+      reader.onload = function(event)
+      {
+          // NOTE: event.target point to FileReader
+          var contents = event.target.result;
+          var lines = contents.split('\n');
+          // Remove all trailing new lines and whitespaces
+          for (var j = 0; j < lines.length; j++) {
+            lines[j] = lines[j].trim();
+          }
+
+          var beginEvent = lines.indexOf("BEGIN:VEVENT");
+          var endEvent = lines.lastIndexOf('END:VEVENT');
+
+          if (size == 1) {
+              // do nothing
+          } else if(i == 0) {
+            //First calendar file entry: Takes in also first part of meta data
+            lines = lines.slice(0, endEvent + 1);
+          } else if ( i == (size - 1)) {
+            //Last calendar file entry: Take last part of meta data
+            lines = lines.slice(beginEvent);
+          } else {
+            // Slice only Event information, beginnen and ending with "VEVENT" headers
+            lines = lines.slice(beginEvent, endEvent + 1);
+          }
+          callback(i, size, lines);
+      };
+      reader.readAsText(file);
+    }
+
+    function dragOverHandler(ev) {
+        // Prevent default behavior (Prevent file from being opened)
+        ev.preventDefault();
+        writeMessage("Drop the files!");
+    }
+
+    function selectHandler(ev) {
+      var allDates = [];
+      var size = ev.srcElement.files.length;
+      writeMessage(size + " file(s) selected! Downloading result...");
+
+      for (var i = 0; i < size; i++) {
+        var file = ev.srcElement.files[i];
+        console.log('... file[' + i + '].name = ' + ev.srcElement.files[i].name);
+        processFile(i, size, file, function(i, size, content){
+          allDates = allDates.concat(content);
+          if(i == size - 1) {
+            // Final callback
+            document.getElementById('output').innerHTML=allDates.join('\n');
+            download_merge(allDates);
+            data = allDates;
+          }
+        });
+      }
+    }
+
+    function dropHandler(ev) {
+      // Prevent default behavior (Prevent file from being opened)
+      ev.preventDefault();
+      if (ev.dataTransfer.items) {
+        // Use DataTransferItemList interface to access the file(s)
+        var allDates = [];
+        var size = ev.dataTransfer.items.length;
+        writeMessage(size + " file(s) dropped! Downloading result...");
+        for (var i = 0; i < size; i++) {
+          // If dropped items aren't files, reject them
+          if (ev.dataTransfer.items[i].kind === 'file') {
+            var file = ev.dataTransfer.items[i].getAsFile();
+            console.log('... file[' + i + '].name = ' + file.name);
+            processFile(i, size, file, function(i, size, content){
+              allDates = allDates.concat(content);
+              if(i == size - 1) {
+                // Final callback
+                document.getElementById('output').innerHTML=allDates.join('\n');
+                download_merge(allDates);
+                data = allDates;
+              }
+            });
+
+          }
+        }
+      } else {
+        // Use DataTransfer interface to access the file(s)
+        var size = ev.dataTransfer.files.length;
+        var allDates = [];
+        for (var i = 0; i < size; i++) {
+          var file = ev.dataTransfer.files[i];
+          console.log('... file[' + i + '].name = ' + ev.dataTransfer.files[i].name);
+          processFile(i, size, file, function(i, size, content){
+            allDates = allDates.concat(content);
+            if(i == size - 1) {
+              // Final callback
+              document.getElementById('output').innerHTML=allDates.join('\n');
+              download_merge(allDates);
+              data = allDates;
+            }
+          });
+        }
+      }
+      // Pass event to removeDragData for cleanup
+      removeDragData(ev)
+    }
+
+
+
+    function removeDragData(ev) {
+      // clear all cached data
+      if (ev.dataTransfer.items) {
+        // Use DataTransferItemList interface to remove the drag data
+        ev.dataTransfer.items.clear();
+      } else {
+        // Use DataTransfer interface to remove the drag data
+        ev.dataTransfer.clearData();
+      }
+    }
+
+    </script>
+    <h1> Merge .ICS Files!</h1>
+    <p>Got some .ics files to merge into one? You're at the right place! </p>
+    <div id="content">
+      <div id="drop_zone" ondrop="dropHandler(event);"  ondragover="dragOverHandler(event);">
+        <div id="dragdropAnimation">
+          <img id="mouse" src="mouse-pointer.svg" />
+          <img id="folder" src="folder.svg" />
+          <img id="file" src="file.svg" />
+        </div>
+        <label for="fileChooser" id="fileChooserLabel">Select</label>
+        <input type="file" id="fileChooser" name="fileChooser" onchange="selectHandler(event)" accept=".ics" multiple>
+
+         or drag all your .ICS calendar files here!
+      </div>
+      <button class="button" onclick="download_merge(data)">Click for manual download!</button>
+      <p id="message"></p>
+      <textarea id="output" rows="15" >(If the donwload doesn't work, you can also copy the result here and paste to a new .ics file!)</textarea>
+      <p><a underline, mousepointer onclick="openCredits()">( What's this? )</a></p>
+      <p id="about"></p>
+      <p>iCalendar (.ics) files are a <a href="https://en.wikipedia.org/wiki/ICalendar">collection of events with metadata</a>. Sometimes, you end up with a lot of them, but some calendars (e.g. Google Calendar) only support import from single .ics files. This tool combines the events and adds metadata to the result for the .ics files you upload, so you don't have to import each single one by hand.</p>
+      <p><a underline, mousepointer onclick="openCredits()">( Credits )</a></p>
+      <p id="credits"></p>
+      <p>Made by <a href="http://michaelion.io">me</a> <br> Find the source for this site <a href="https://github.com/mionisation/icsMerge">on Github</a> <br>Animation made using (and slightly altering) fontawesome files, from <a href="http://michaelion.io">https://fontawesome.com</a>   <br> Fonts from Google Fonts: <a href="http://michaelion.io">Oswald</a> and <a href="http://michaelion.io">Bangers</a></p>
+    </div>
+
+  </body>
+</html>
