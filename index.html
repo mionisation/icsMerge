@@ -8,6 +8,9 @@
 
     <link href="https://fonts.googleapis.com/css?family=Bangers" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Oswald" rel="stylesheet">
+    <link rel="icon" type="image/png" href="favicon/favicon-32x32.png" sizes="32x32" />
+    <link rel="icon" type="image/png" href="favicon/favicon-16x16.png" sizes="16x16" />
+
     <style>
         html                    { overflow-y:scroll; min-height: 100% }
         body {
@@ -334,7 +337,7 @@
 
     function openCredits() {
       document.getElementById('about').innerHTML = '';
-      var credits = 'Find the source for this site <a href="https://github.com/mionisation/icsMerge">on Github</a><br> <a href="https://www.linkedin.com/in/michael-ion">More about me</a> <br>Animation made using (and slightly altering) <a href="https://fontawesome.com">fontawesome icons</a>   <br> Fonts from Google Fonts: <a href="https://fonts.google.com/specimen/Oswald">Oswald</a> and <a href="https://fonts.google.com/specimen/Bangers">Bangers</a>';
+      var credits = 'Find the source for this site <a href="https://github.com/mionisation/icsMerge">on Github</a><br><a href="mailto:michael.antonius.ion@gmail.com?subject=ICS%20merger"> Contact me for questions and remarks </a><br> <a href="https://www.linkedin.com/in/michael-ion">More about me</a> <br>Animation made using (and slightly altering) <a href="https://fontawesome.com">fontawesome icons</a>   <br> Fonts from Google Fonts: <a href="https://fonts.google.com/specimen/Oswald">Oswald</a> and <a href="https://fonts.google.com/specimen/Bangers">Bangers</a>';
       var creditEl = document.getElementById('credits');
       openMessage(creditEl, credits);
     }
