@@ -59,9 +59,23 @@
           width: 100%;
           margin: 50px auto 20px;
           padding: 10px;
+          font-size: small;
           box-sizing: border-box;
           background: linear-gradient(to bottom left, #ffedc4, #ffd6a0);
           font-family: 'Consolas', 'Monaco','Lucida Console','Liberation Mono','DejaVu Sans Mono','Bitstream Vera Sans Mono','Courier New';
+        }
+
+        #urlarea {
+          background: linear-gradient(to bottom left, #ffc8a6, #ffae78);
+          border-color: #ff7b25;
+          border: 10px solid #ff7b25;
+          border-radius: 8px;
+          height: 200px;
+          outline: 2px dashed white;
+          outline-offset: -10px;
+          font-size: x-small;
+          margin: 0px auto 20px;
+
         }
 
         @media (max-width:350px) {
@@ -187,8 +201,36 @@
     <script>
 
     var data = undefined;
+
+    var defaultString = "(examples with Google Calendar - works with private or public URLs - click to delete)\nhttps://calendar.google.com/calendar/embed?src=my.gmail.account%40gmail.com&\nhttps://calendar.google.com/calendar?cid=ABCDEFG123456789\nhttps://calendar.google.com/calendar/ical/ABCDEFG123456789%40group.calendar.google.com/public/basic.ics\nhttps://calendar.google.com/calendar/ical/ABCDEFG123456789%40group.calendar.google.com/private-ABCDEFG123456789/basic.ics";
+    function setTextArea() {
+      var area = document.getElementById('urlarea');
+      area.value = defaultString;
+    }
+    window.onload = setTextArea;
+    function clearTextArea() {
+      var area = document.getElementById('urlarea');
+      if(area.value == defaultString) {
+        area.value = '';
+      }
+    }
     function download_merge(data) {
           var fileContent = '';
+          var area = document.getElementById('urlarea');
+          var areaArr;
+          if(area.value != defaultString) {
+            function iterate(item) {
+              console.log(item);
+              }
+            areaArr = area.value.split("\n")
+            areaArr.forEach(iterate);
+            var url = 'https://calendar.google.com/calendar/ical/51eqvemt5u81o0rkch8r211as4%40group.calendar.google.com/private-84289a1df8bfe3af1c51db84e824b9a5/basic.ics'
+            fetch(url, {method: 'GET'})
+            // .then(response => response.text())
+            .then((data) => {
+              console.log(data)
+            })
+          }
           if( data == null | data == undefined ) {
             writeMessage("ERROR: Please select or drag your *.ics files first!");
             return;
@@ -364,12 +406,14 @@
           <img id="folder" src="folder.svg" />
           <img id="file" src="file.svg" />
         </div>
-        <label for="fileChooser" id="fileChooserLabel">Select</label>
+        <label for="fileChooser" id="fileChooserLabel">Click here to select</label>
         <input type="file" id="fileChooser" name="fileChooser" onchange="selectHandler(event)" accept=".ics" multiple>
 
-         or drag all your .ICS calendar files here!
+         or drop your .ICS calendar files here!
       </div>
-      <button class="button" onclick="download_merge(data)">Click for manual download!</button>
+      <p>Alternatively, paste a list of public calendar URLs (one per line):</p>
+      <textarea id="urlarea" onClick="clearTextArea()" name="urlarea" rows="4" cols="50"></textarea>
+      <button class="button" onclick="download_merge(data)">DOWNLOAD</button>
       <p id="message"></p>
       <textarea id="output" rows="15" >(If the donwload doesn't work, you can also copy the result here and paste to a new .ics file!)</textarea>
       <p><a underline, mousepointer onclick="openAbout()">( What's this? )</a></p>
