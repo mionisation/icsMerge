@@ -222,7 +222,7 @@
           var lines = contents.split('\n');
           // Remove all trailing new lines and whitespaces
           for (var j = 0; j < lines.length; j++) {
-            lines[j] = lines[j].trim();
+            lines[j] = lines[j].trimEnd();
           }
 
           var beginEvent = lines.indexOf("BEGIN:VEVENT");
